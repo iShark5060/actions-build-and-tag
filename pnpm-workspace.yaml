@@ -1,6 +1,0 @@
-allowBuilds:
-  esbuild: true
-
-updateConfig:
-  ignoreDependencies:
-    - '@types/node'
