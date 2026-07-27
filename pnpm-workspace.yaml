@@ -4,3 +4,6 @@ allowBuilds:
 updateConfig:
   ignoreDependencies:
     - '@types/node'
+
+overrides:
+  postcss: '>=8.5.18'
