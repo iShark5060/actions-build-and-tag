@@ -81,22 +81,28 @@ Grant **`contents: write`** to `GITHUB_TOKEN` so tag updates can succeed.
 
 ## Inputs
 
-| Input                     | Required | Default                 | Description                                                        |
-| ------------------------- | -------- | ----------------------- | ------------------------------------------------------------------ |
-| `tag_name`                | No       | release tag             | Tag to update. Defaults to `release.tag_name` on `release` events. |
-| `commit_message`          | No       | `Automatic compilation` | Commit message for the release tag update.                         |
-| `additional_files`        | No       | —                       | Comma-separated extra files (merged with `package.json` `files`).  |
-| `update_major_minor_tags` | No       | `true`                  | Update floating major/minor tags (e.g. `v1`, `v1.0`).              |
+| Input                     | Required | Default                 | Description                                                                                          |
+| ------------------------- | -------- | ----------------------- | ---------------------------------------------------------------------------------------------------- |
+| `tag_name`                | No       | release tag             | Tag to update. Defaults to `release.tag_name` on `release` events.                                   |
+| `commit_message`          | No       | `Automatic compilation` | Commit message for the release tag update.                                                           |
+| `additional_files`        | No       | —                       | Comma-separated extra files or directories (merged with `package.json` `files`). Literal paths only. |
+| `update_major_minor_tags` | No       | `true`                  | Update floating major/minor tags (e.g. `v1`, `v1.0`).                                                |
+| `working_directory`       | No       | workspace root          | Subdirectory containing `action.yml` / `package.json` for nested action layouts.                     |
+| `dry_run`                 | No       | `false`                 | Resolve and log files/tags without creating commits or updating refs.                                |
 
 ## Outputs
 
-| Output       | Description                      |
-| ------------ | -------------------------------- |
-| `commit_sha` | SHA of the newly created commit. |
+| Output            | Description                                                     |
+| ----------------- | --------------------------------------------------------------- |
+| `commit_sha`      | SHA of the newly created commit (empty when `dry_run` is true). |
+| `files_published` | Newline-separated list of files included in the publish tree.   |
+| `tags_updated`    | Newline-separated list of tags that were (or would be) updated. |
+| `dry_run`         | `true` when dry-run mode was used.                              |
 
 ## Behavior
 
-- Entrypoints from `runs.main`, `runs.pre`, and `runs.post` in `action.yml` are included automatically.
+- Entrypoints from `runs.main`, `runs.pre`, and `runs.post` in `action.yml` are included automatically (JS/Node action style). True composite actions (`using: composite` + `runs.steps`) are not auto-discovered.
+- `additional_files` and `package.json` `files` are literal paths or directories (walked recursively). Glob patterns are **not** expanded.
 - Files are uploaded as base64 blobs so binary assets are not corrupted.
 - Floating major/minor tags are skipped for draft and pre-release releases.
 - `GITHUB_TOKEN` is required via `env` (standard `github.token`).

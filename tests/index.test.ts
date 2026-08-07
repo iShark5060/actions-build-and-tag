@@ -13,6 +13,8 @@ describe('actions-build-and-tag', () => {
     process.env.INPUT_TAG_NAME = '';
     process.env.INPUT_UPDATE_MAJOR_MINOR_TAGS = '';
     process.env.INPUT_COMMIT_MESSAGE = '';
+    process.env.INPUT_DRY_RUN = '';
+    process.env.INPUT_WORKING_DIRECTORY = '';
     ctx = generateContext();
   });
 
@@ -103,8 +105,22 @@ describe('actions-build-and-tag', () => {
     expect(ctx.github.rest.git.updateRef).not.toHaveBeenCalled();
   });
 
-  test('returns the new commit sha', async () => {
-    const sha = await buildAndTagAction(ctx);
-    expect(sha).toBe('123abc');
+  test('returns the new commit sha and published metadata', async () => {
+    const result = await buildAndTagAction(ctx);
+    expect(result.commit_sha).toBe('123abc');
+    expect(result.tags_updated).toEqual(['v1.0.0', 'v1.0', 'v1']);
+    expect(result.dry_run).toBe(false);
+    expect(result.files_published.length).toBeGreaterThan(0);
+  });
+
+  test('dry_run skips ref mutations and reports planned tags', async () => {
+    process.env.INPUT_DRY_RUN = 'true';
+    const result = await buildAndTagAction(ctx);
+    expect(result.dry_run).toBe(true);
+    expect(result.commit_sha).toBe('');
+    expect(result.tags_updated).toEqual(['v1.0.0', 'v1.0', 'v1']);
+    expect(ctx.github.rest.git.createRef).not.toHaveBeenCalled();
+    expect(ctx.github.rest.git.updateRef).not.toHaveBeenCalled();
+    expect(ctx.github.rest.git.createCommit).not.toHaveBeenCalled();
   });
 });

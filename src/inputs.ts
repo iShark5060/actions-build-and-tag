@@ -16,3 +16,7 @@ export function shouldUpdateMajorMinorTags(): boolean {
   const value = core.getInput('update_major_minor_tags').trim().toLowerCase();
   return value === '' || value === 'true';
 }
+
+export function isDryRun(): boolean {
+  return core.getInput('dry_run').trim().toLowerCase() === 'true';
+}

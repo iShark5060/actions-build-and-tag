@@ -22,6 +22,23 @@ function readPayload(): Record<string, unknown> {
   return {};
 }
 
+/** Resolve working_directory under the GitHub workspace; reject escapes. */
+export function resolvePublishWorkspace(githubWorkspace: string, workingDirectory: string): string {
+  if (!workingDirectory) {
+    return githubWorkspace;
+  }
+
+  const root = path.resolve(githubWorkspace);
+  const resolved = path.resolve(root, workingDirectory);
+  const relative = path.relative(root, resolved);
+  if (relative.startsWith('..') || path.isAbsolute(relative)) {
+    throw new Error(
+      `working_directory must stay within the GitHub workspace (got: ${workingDirectory})`,
+    );
+  }
+  return resolved;
+}
+
 export function createContext(): ActionContext {
   const token = process.env.GITHUB_TOKEN;
   if (!token) {
@@ -29,7 +46,9 @@ export function createContext(): ActionContext {
   }
 
   const [owner = '', repo = ''] = (process.env.GITHUB_REPOSITORY || '').split('/');
-  const workspace = process.env.GITHUB_WORKSPACE || process.cwd();
+  const githubWorkspace = process.env.GITHUB_WORKSPACE || process.cwd();
+  const workingDirectory = core.getInput('working_directory').trim();
+  const workspace = resolvePublishWorkspace(githubWorkspace, workingDirectory);
 
   return {
     workspace,

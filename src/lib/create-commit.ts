@@ -14,7 +14,7 @@ type TreeEntry = {
   sha: string;
 };
 
-export default async function createCommit(ctx: ActionContext, commitMessage: string) {
+export async function resolvePublishPaths(ctx: ActionContext): Promise<string[]> {
   const packageJson = ctx.getPackageJSON<{ main?: string; files?: string[] }>();
   const actionFileName = findActionFileName(ctx.workspace);
 
@@ -33,6 +33,12 @@ export default async function createCommit(ctx: ActionContext, commitMessage: st
       'Property "main" does not exist in your `package.json` and no action run entrypoints were found.',
     );
   }
+
+  return [...paths].sort();
+}
+
+export default async function createCommit(ctx: ActionContext, commitMessage: string) {
+  const paths = await resolvePublishPaths(ctx);
 
   core.info('Creating tree');
   const treeEntries: TreeEntry[] = [];
@@ -60,7 +66,7 @@ export default async function createCommit(ctx: ActionContext, commitMessage: st
   });
   core.info(`Commit created (${commit.data.sha})`);
 
-  return commit.data;
+  return { commit: commit.data, files: paths };
 }
 
 async function createBlob(ctx: ActionContext, filePath: string) {

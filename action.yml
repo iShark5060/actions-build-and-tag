@@ -11,16 +11,29 @@ inputs:
     required: false
     default: Automatic compilation
   additional_files:
-    description: Comma-separated list of extra files to include in the release tag (merged with package.json `files`).
+    description: Comma-separated list of extra files or directories to include in the release tag (merged with package.json `files`). Paths are literal; directories are walked recursively. Glob patterns are not expanded.
     required: false
   update_major_minor_tags:
     description: Update floating major and minor version tags (for example v1 and v1.0).
     required: false
     default: 'true'
+  working_directory:
+    description: Subdirectory of the workspace that contains action.yml / package.json for this publish. Defaults to the repository root.
+    required: false
+  dry_run:
+    description: Resolve and log files/tags that would be published without creating commits or updating refs.
+    required: false
+    default: 'false'
 
 outputs:
   commit_sha:
-    description: SHA of the commit newly created.
+    description: SHA of the commit newly created. Empty when dry_run is true.
+  files_published:
+    description: Newline-separated list of files included in the publish tree.
+  tags_updated:
+    description: Newline-separated list of tags that were (or would be) updated.
+  dry_run:
+    description: 'true when dry_run mode was used.'
 
 runs:
   using: node24
