@@ -138,7 +138,7 @@ branding:
 
 - Relative to workspace root
 - Forward slashes recommended (backslashes normalized)
-- Supports glob patterns via `package.json` `files` field
+- Supports literal paths and directories from the `package.json` `files` field; glob patterns are not expanded
 
 **Source**: `/src/inputs.ts` (lines 7-13), `/src/lib/resolve-publishable-files.ts`
 
@@ -258,8 +258,8 @@ The action automatically discovers files from these sources (in order):
 1. **Action Configuration** (`action.yml`/`action.yaml`)
    - The file itself
    - `runs.main` entrypoint
-   - `runs.pre` entrypoint (if composite action)
-   - `runs.post` entrypoint (if composite action)
+   - `runs.pre` entrypoint (if present)
+   - `runs.post` entrypoint (if present)
 
 2. **Package Configuration** (`package.json`)
    - `main` field (required if only one entrypoint)
