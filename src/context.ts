@@ -22,7 +22,6 @@ function readPayload(): Record<string, unknown> {
   return {};
 }
 
-/** Resolve working_directory under the GitHub workspace; reject escapes. */
 export function resolvePublishWorkspace(githubWorkspace: string, workingDirectory: string): string {
   if (!workingDirectory) {
     return githubWorkspace;
