@@ -6,7 +6,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-7.x-3178C6?logo=typescript&logoColor=white)
 [![Cursor](https://img.shields.io/badge/Cursor-IDE-141414?logo=cursor&logoColor=white)](https://cursor.com)
 
-Publish JavaScript GitHub Actions to release and floating version tags.
+Publish JavaScript GitHub Actions to release tags and floating version tags (`v1`, `v1.2`).
 
 > **Fork notice:** Maintained fork of [JasonEtco/build-and-tag-action](https://github.com/JasonEtco/build-and-tag-action) by Jason Etco (MIT License).
 
