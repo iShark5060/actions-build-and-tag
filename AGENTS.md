@@ -1,61 +1,19 @@
 # actions-build-and-tag
 
-GitHub Action for publishing JavaScript Actions to release and floating version tags.
+## Org standards
 
-## Architecture
+CI/README/validate conventions live in AppBase `docs/org-standards/` with personal-repo overrides (`personal-repos.md`). GitHub-hosted runners, not Blacksmith. Action-publish track: `release` event → build-and-tag. Quality gate: `pnpm run validate`.
 
-- `src/index.ts` — entry point: create context, orchestrate, set outputs
-- `src/lib/` — core logic (commit creation, ref updates, file resolution)
-- `src/context.ts`, `src/inputs.ts` — GitHub context and input parsing
-- `action.yml` — action metadata
-- `dist/index.js` — published CJS bundle (committed on release tags only)
+## Overview
 
-## Contract sync
+Publishes a JS/TS action’s compiled entrypoints onto a release tag and floating major/minor tags (`v1`, `v1.2`). Maintained fork of JasonEtco/build-and-tag-action. Inputs and usage: `README.md` / `action.yml`.
 
-When behavior changes, update:
+## Publish contract
 
-- `README.md`
-- `action.yml`
-- tests under `tests/`
-- regenerate `dist/index.js` with `pnpm run build` on the release tag
+Bundled `dist/index.js` exists only on **published release tags**. Consumers must use `@v1` (or an exact tag), never `@main`. This repo’s own release workflow uses `uses: ./` after `pnpm run build`; other action repos call `iShark5060/actions-build-and-tag@v1`. The workflow also pushes a companion `${tag}-src` at the pre-publish source SHA.
 
-## Verification
+The publish commit’s tree has **no `base_tree`**: the tag points at a commit that contains **only** the resolved publish files (plus parent SHA history), not the full repo tree. Tag refs are force-updated.
 
-```bash
-pnpm run validate
-pnpm run build
-```
+Floating major/minor tags update only when all of these hold: `update_major_minor_tags` is not `false`, the release event is not draft/prerelease, and the tag is clean semver without a prerelease suffix.
 
-## Release
-
-1. Create a pre-release from `main`
-2. Verify the Release workflow completes
-3. Promote to a full release when ready
-
-## Dependencies
-
-```bash
-pnpm run deps
-pnpm install
-```
-
-## Engineering standards
-
-Follow AppBase `docs/org-standards/` with personal-repo overrides (`personal-repos.md`):
-
-- Runners: `ubuntu-latest` / `windows-latest`
-- Checkout: `actions/checkout@v7`
-- Node setup: `actions/setup-node@v7`
-- Quality gate: `pnpm run validate`
-
-## OpenWiki
-
-This repository has documentation located in the /openwiki directory.
-
-Start here:
-
-- [OpenWiki quickstart](openwiki/quickstart.md)
-
-OpenWiki includes repository overview, architecture notes, workflows, domain concepts, operations, integrations, testing guidance, and source maps.
-
-When working in this repository, read the OpenWiki quickstart first, then follow its links to the relevant architecture, workflow, domain, operation, and testing notes.
+`additional_files` and `package.json` `files` are literal paths or directories (walked recursively). Glob patterns are not expanded. Missing paths warn and skip. True composite actions (`using: composite` + `runs.steps`) are not auto-discovered; only `runs.main` / `pre` / `post`. `working_directory` must resolve inside `GITHUB_WORKSPACE`.
