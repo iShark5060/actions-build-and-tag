@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const MIN_NODE_MAJOR = 24;
-const MIN_PNPM_MAJOR = 11;
+const MIN_PNPM_MAJOR = 12;
 
 function fail(message) {
   console.error(`\n[preflight] ${message}\n`);
