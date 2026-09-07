@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-const MIN_NODE_MAJOR = 24;
+const MIN_NODE_MAJOR = 26;
 const MIN_PNPM_MAJOR = 12;
 
 function fail(message) {
