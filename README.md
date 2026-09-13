@@ -6,7 +6,9 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-7.x-3178C6?logo=typescript&logoColor=white&style=flat-square)
 [![Cursor](https://img.shields.io/badge/Cursor-IDE-141414?logo=cursor&logoColor=white&style=flat-square)](https://cursor.com)
 
-Publishes a JavaScript GitHub Action onto a release tag and floating version tags (`v1`, `v1.2`). Maintained fork of [JasonEtco/build-and-tag-action](https://github.com/JasonEtco/build-and-tag-action).
+Publish JavaScript GitHub Actions to release tags and floating version tags (`v1`, `v1.2`). Build once, move the major tag, consumers on `@v1` pick it up.
+
+This is a maintained fork of [JasonEtco/build-and-tag-action](https://github.com/JasonEtco/build-and-tag-action) by Jason Etco (MIT License). I use it so the Discord / release / MSVC actions in this folder actually have a `dist/` on the tag.
 
 ```yaml
 - uses: actions/checkout@v7
