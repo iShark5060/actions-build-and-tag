@@ -1,0 +1,37 @@
+name: Dependency updates
+
+env:
+  GIT_AUTHOR_EMAIL: shark@shark5060.net
+  GIT_AUTHOR_NAME: shark5060 dependencies
+  GIT_COMMITTER_EMAIL: shark@shark5060.net
+  GIT_COMMITTER_NAME: shark5060 dependencies
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: dependency-updates
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: light-node26
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: sh
+
+    steps:
+      - name: Install git
+        run: apk add --no-cache git
+
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805da76410c181273ba90b1 # v7.0.1
+
+      - name: Enable pnpm
+        run: npm install -g pnpm@12.6.0
+
+      - name: Open dependency pull requests
+        run: node scripts/dependency-update.mjs
