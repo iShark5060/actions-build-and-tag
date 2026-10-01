@@ -104,13 +104,21 @@ async function main() {
   resetToMain();
   pnpm(['update', '--latest', '--prod', '--lockfile-only']);
   git(['checkout', '--', workflowDir]);
-  await publish('deps/production', 'chore(deps): update production dependencies', packagePaths.filter((file) => existsSync(file)));
+  await publish(
+    'deps/production',
+    'chore(deps): update production dependencies',
+    packagePaths.filter((file) => existsSync(file)),
+  );
 
   resetToMain();
   updateWithActions(['update', '--latest', '--dev', '--lockfile-only', '--include-github-actions']);
   const actionsPatch = git(['diff', '--', workflowDir], { trim: false });
   git(['checkout', '--', workflowDir]);
-  await publish('deps/development', 'chore(deps): update development dependencies', packagePaths.filter((file) => existsSync(file)));
+  await publish(
+    'deps/development',
+    'chore(deps): update development dependencies',
+    packagePaths.filter((file) => existsSync(file)),
+  );
 
   resetToMain();
   if (!actionsPatch.trim()) {
