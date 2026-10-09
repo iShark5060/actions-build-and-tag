@@ -8,12 +8,9 @@ const workflowDir = '.forgejo/workflows';
 const pullBody = [
   'Opened by the dependency update workflow.',
   '',
-  'Comment `@actions rebase` to rebuild this branch from current main.',
+  'Comment `@sayori rebase` to rebuild this branch from current main.',
 ].join('\n');
 
-// ponytail: pnpm only rewrites .github/workflows. Mirror the Forgejo workflows
-// there for the update, then delete the copy so it is never committed. Drop
-// this when pnpm scans .forgejo/workflows.
 function updateWithActions(args) {
   mkdirSync('.github/workflows', { recursive: true });
   cpSync(workflowDir, '.github/workflows', { recursive: true });
@@ -36,7 +33,7 @@ function rebaseCommand(body) {
     .trim()
     .split(/\r?\n/, 1)[0]
     .trim();
-  return line === '@actions rebase';
+  return line === '@sayori rebase';
 }
 
 function requireEnv(names) {
@@ -106,7 +103,6 @@ async function publish(branch, message, paths) {
 
   git(['checkout', '-B', branch]);
   git(['commit', '-m', message]);
-  // ponytail: deps/* branches are rewritten every run; stop if a group needs review history
   git(['push', '--force', 'origin', `HEAD:refs/heads/${branch}`]);
   await openPullRequest(branch, message);
   return true;
@@ -210,7 +206,7 @@ async function rebase() {
     return;
   }
   if (!rebaseCommand(process.env.COMMENT_BODY)) {
-    await comment(number, 'The command is `@actions rebase`.');
+    await comment(number, 'The command is `@sayori rebase`.');
     return;
   }
 
@@ -279,10 +275,11 @@ function selfCheck() {
     refused = true;
   }
   if (!refused) throw new Error('self-check failed');
-  if (!rebaseCommand('@actions rebase')) throw new Error('self-check failed');
-  if (!rebaseCommand('  @actions rebase  \r\n')) throw new Error('self-check failed');
-  if (rebaseCommand('@actions rebase please')) throw new Error('self-check failed');
-  if (rebaseCommand('please\n@actions rebase')) throw new Error('self-check failed');
+  if (!rebaseCommand('@sayori rebase')) throw new Error('self-check failed');
+  if (!rebaseCommand('  @sayori rebase  \r\n')) throw new Error('self-check failed');
+  if (rebaseCommand('@sayori rebase please')) throw new Error('self-check failed');
+  if (rebaseCommand('please\n@sayori rebase')) throw new Error('self-check failed');
+  if (rebaseCommand('@actions rebase')) throw new Error('self-check failed');
   if (rebaseCommand('@dal rebase')) throw new Error('self-check failed');
   if (rebaseCommand('@dependabot rebase')) throw new Error('self-check failed');
   console.log('self-check ok');
