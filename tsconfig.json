@@ -17,5 +17,5 @@
     "removeComments": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/*.test.ts", "vitest.config.ts", "tests/**"]
+  "exclude": ["node_modules", "**/*.test.ts", "vitest.config.mts", "tests/**"]
 }
