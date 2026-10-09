@@ -10,6 +10,8 @@ on:
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
+  issue_comment:
+    types: [created]
 
 concurrency:
   group: dependency-updates
@@ -17,6 +19,10 @@ concurrency:
 
 jobs:
   update:
+    if: >-
+      github.event_name != 'issue_comment' ||
+      (github.event.issue.pull_request &&
+        startsWith(github.event.comment.body, '@actions rebase'))
     runs-on: light-node26
     timeout-minutes: 20
     defaults:
@@ -35,7 +41,15 @@ jobs:
       - name: Enable pnpm
         run: npm install -g pnpm@12.6.0
 
-      - name: Open dependency pull requests
+      - name: Open or rebase dependency pull requests
         env:
           GITHUB_TOKEN: ${{ secrets.CI_PAT }}
-        run: node scripts/dependency-update.mjs
+          PR_NUMBER: ${{ github.event.issue.number }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          COMMENT_USER: ${{ github.event.comment.user.login }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "issue_comment" ]; then
+            node scripts/dependency-update.mjs --rebase
+          else
+            node scripts/dependency-update.mjs
+          fi
