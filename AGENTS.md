@@ -10,7 +10,7 @@ Publishes a JS/TS action’s compiled entrypoints onto a release tag and floatin
 
 ## Publish contract
 
-Bundled `dist/index.js` exists only on **published release tags**. Consumers must use `@v1` (or an exact tag), never `@main`. This repo’s own release workflow uses `uses: ./` after `pnpm run build`; other action repos call `iShark5060/actions-build-and-tag@v1`. The workflow also pushes a companion `${tag}-src` at the pre-publish source SHA.
+Source is ESM (`"type": "module"`); the published Action entry must stay **CJS** (`dist/index.cjs`). Do not switch the bundle to ESM. `dist/index.cjs` exists only on **published release tags**. Consumers must use `@v1` (or an exact tag), never `@main`. This repo’s own release workflow uses `uses: ./` after `pnpm run build`; other action repos call `iShark5060/actions-build-and-tag@v1`. The workflow also pushes a companion `${tag}-src` at the pre-publish source SHA.
 
 The publish commit’s tree has **no `base_tree`**: the tag points at a commit that contains **only** the resolved publish files (plus parent SHA history), not the full repo tree. Tag refs are force-updated.
 

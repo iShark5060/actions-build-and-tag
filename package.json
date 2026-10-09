@@ -8,7 +8,8 @@
     "type": "git",
     "url": "git+https://github.com/iShark5060/actions-build-and-tag.git"
   },
-  "main": "dist/index.js",
+  "type": "module",
+  "main": "dist/index.cjs",
   "scripts": {
     "validate": "node run-quality-checks.mjs",
     "lint": "oxlint .",
@@ -18,7 +19,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "build": "esbuild src/index.ts --bundle --platform=node --format=cjs --target=node24 --outfile=dist/index.js --minify",
+    "build": "esbuild src/index.ts --bundle --platform=node --format=cjs --target=node24 --outfile=dist/index.cjs --minify",
     "deps": "pnpm dlx npm-check-updates --target newest -u --reject @types/node && pnpm dlx npm-check-updates @types/node --target semver -u",
     "deps:update": "pnpm update -r --latest && pnpm update @types/node"
   },
