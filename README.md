@@ -24,7 +24,7 @@ Needs `permissions: contents: write`. Inputs live in `action.yml`.
 
 ## Gotchas
 
-- Reference a **published tag** (`@v1`). `dist/index.js` is only on release tags; `@main` will not work.
+- Reference a **published tag** (`@v1`). `dist/index.cjs` is only on release tags; `@main` will not work.
 - The publish commit contains **only** the resolved files, not the full repo tree. Tag refs are force-updated.
 - Floating major/minor tags are skipped for drafts, pre-releases, and tags with a prerelease suffix.
 - `additional_files` and `package.json` `files` are literal paths (directories walked recursively). Globs are not expanded. Composite actions (`using: composite`) are not auto-discovered.
