@@ -63,3 +63,71 @@ jobs:
           TAGNAME="${{ github.event.release.tag_name }}-src"
           git tag "$TAGNAME" "${{ steps.source.outputs.sha }}"
           git push origin "$TAGNAME"
+
+  sync-tags:
+    needs: build-and-tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          audience: ${{ secrets.TS_AUDIENCE }}
+          tags: tag:ci
+          ping: git.darkavianlabs.com
+
+      - name: Push release tags to Forgejo
+        env:
+          FORGEJO_TOKEN: ${{ secrets.FORGEJO_TOKEN }}
+          FORGEJO_REPO: shark5060/actions-build-and-tag
+          TAG: ${{ github.event.release.tag_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$FORGEJO_TOKEN" ]; then
+            echo "FORGEJO_TOKEN is empty."
+            exit 1
+          fi
+          if [ -z "$TAG" ]; then
+            echo "Release tag is empty."
+            exit 1
+          fi
+
+          has_tag() {
+            git ls-remote origin "refs/tags/$1" | grep -q .
+          }
+
+          refs=()
+          add_tag() {
+            git fetch --force origin "refs/tags/$1:refs/tags/$1"
+            refs+=("refs/tags/$1:refs/tags/$1")
+          }
+
+          if ! has_tag "$TAG"; then
+            echo "Release tag ${TAG} is not on GitHub."
+            exit 1
+          fi
+          add_tag "$TAG"
+
+          if has_tag "${TAG}-src"; then
+            add_tag "${TAG}-src"
+          fi
+
+          if [[ "$TAG" =~ ^v([0-9]+)\.([0-9]+)\.[0-9]+$ ]]; then
+            for name in "v${BASH_REMATCH[1]}" "v${BASH_REMATCH[1]}.${BASH_REMATCH[2]}"; do
+              if has_tag "$name"; then
+                add_tag "$name"
+              fi
+            done
+          fi
+
+          git -c "http.extraHeader=AUTHORIZATION: token ${FORGEJO_TOKEN}" \
+            push --force "https://git.darkavianlabs.com/${FORGEJO_REPO}.git" "${refs[@]}"
