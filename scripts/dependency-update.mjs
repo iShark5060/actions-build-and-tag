@@ -32,7 +32,10 @@ export function assertUpdateBranch(branch) {
 }
 
 function rebaseCommand(body) {
-  const line = String(body ?? '').trim().split(/\r?\n/, 1)[0].trim();
+  const line = String(body ?? '')
+    .trim()
+    .split(/\r?\n/, 1)[0]
+    .trim();
   return line === '@actions rebase';
 }
 
@@ -73,11 +76,9 @@ function tokenHeaders() {
 }
 
 async function api(pathname, { method = 'GET', body } = {}) {
-  const response = await fetch(`${process.env.GITHUB_API_URL}${pathname}`, {
-    method,
-    headers: tokenHeaders(),
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
+  const init = { method, headers: tokenHeaders() };
+  if (body !== undefined) init.body = JSON.stringify(body);
+  const response = await fetch(`${process.env.GITHUB_API_URL}${pathname}`, init);
   if (!response.ok) {
     console.error(await response.text());
     const error = new Error(`${method} ${pathname} failed (${response.status})`);
@@ -192,7 +193,11 @@ async function hasWriteAccess(user) {
     if (error.status === 404) return false;
     throw error;
   }
-  return response?.permission === 'admin' || response?.permission === 'write' || response?.permission === 'owner';
+  return (
+    response?.permission === 'admin' ||
+    response?.permission === 'write' ||
+    response?.permission === 'owner'
+  );
 }
 
 async function rebase() {
@@ -211,9 +216,18 @@ async function rebase() {
 
   const pull = await api(`/repos/${process.env.GITHUB_REPOSITORY}/pulls/${number}`);
   const branch = pull.head?.ref;
-  const allowed = branch === 'deps/production' || branch === 'deps/development' || branch === 'deps/actions';
-  if (pull.state !== 'open' || pull.base?.ref !== 'main' || pull.head?.repo?.full_name !== process.env.GITHUB_REPOSITORY || !allowed) {
-    await comment(number, 'This only rebases open `deps/production`, `deps/development`, and `deps/actions` pull requests targeting main.');
+  const allowed =
+    branch === 'deps/production' || branch === 'deps/development' || branch === 'deps/actions';
+  if (
+    pull.state !== 'open' ||
+    pull.base?.ref !== 'main' ||
+    pull.head?.repo?.full_name !== process.env.GITHUB_REPOSITORY ||
+    !allowed
+  ) {
+    await comment(
+      number,
+      'This only rebases open `deps/production`, `deps/development`, and `deps/actions` pull requests targeting main.',
+    );
     return;
   }
 
