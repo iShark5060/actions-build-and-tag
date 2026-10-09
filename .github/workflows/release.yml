@@ -131,4 +131,3 @@ jobs:
 
           git -c "http.extraHeader=AUTHORIZATION: token ${FORGEJO_TOKEN}" \
             push --force "https://git.darkavianlabs.com/${FORGEJO_REPO}.git" "${refs[@]}"
-
