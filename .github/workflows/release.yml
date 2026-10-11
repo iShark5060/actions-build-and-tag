@@ -75,6 +75,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          # build-and-tag moves the release tag before this job starts.
+          ref: ${{ github.sha }}
 
       - name: Tailscale
         uses: tailscale/github-action@v4
