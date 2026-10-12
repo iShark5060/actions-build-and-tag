@@ -180,20 +180,10 @@ async function comment(number, body) {
 }
 
 async function hasWriteAccess(user) {
-  let response;
-  try {
-    response = await api(
-      `/repos/${process.env.GITHUB_REPOSITORY}/collaborators/${encodeURIComponent(user)}/permission`,
-    );
-  } catch (error) {
-    if (error.status === 404) return false;
-    throw error;
-  }
-  return (
-    response?.permission === 'admin' ||
-    response?.permission === 'write' ||
-    response?.permission === 'owner'
-  );
+  // Sayori has write, not admin. Forgejo only lets an admin read another user's permission.
+  // Assignees are the write users, and a write token can read that list.
+  const assignees = await api(`/repos/${process.env.GITHUB_REPOSITORY}/assignees`);
+  return (assignees ?? []).some((entry) => entry.login === user);
 }
 
 async function rebase() {
